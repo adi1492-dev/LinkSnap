@@ -6,7 +6,14 @@ interface RateLimitInfo {
   resetAt: number;
 }
 
-const rateLimitStore = new Map<string, RateLimitInfo>();
+const globalForRateLimit = globalThis as unknown as {
+  rateLimitStore: Map<string, RateLimitInfo> | undefined;
+};
+
+const rateLimitStore = globalForRateLimit.rateLimitStore || new Map<string, RateLimitInfo>();
+if (process.env.NODE_ENV !== 'production') {
+  globalForRateLimit.rateLimitStore = rateLimitStore;
+}
 
 export function checkRateLimit(key: string, limit: number, windowMs: number): { success: boolean, remaining: number, resetAt: number } {
   const now = Date.now();
