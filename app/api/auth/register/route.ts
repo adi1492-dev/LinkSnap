@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db, initializeDatabase } from '@/lib/db';
-import { randomUUID } from 'crypto';
 
 const allowedOrigin = process.env.FRONTEND_URL || '*';
 const corsHeaders = {
@@ -36,9 +35,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User with this email already exists.' }, { status: 400, headers: corsHeaders });
     }
 
-    const userId = randomUUID();
-    const defaultKeyId = randomUUID();
-    const defaultKeyValue = 'pk_' + randomUUID().replace(/-/g, '') + randomUUID().replace(/-/g, '');
+    const userId = crypto.randomUUID();
+    const defaultKeyId = crypto.randomUUID();
+    const defaultKeyValue = 'pk_' + crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 
     // Insert user and their default API key
     await db.executeMultiple(`

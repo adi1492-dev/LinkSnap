@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db, initializeDatabase } from '@/lib/db';
-import { randomUUID } from 'crypto';
 
 const allowedOrigin = process.env.FRONTEND_URL || '*';
 const corsHeaders = {
@@ -64,12 +63,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing userId or name' }, { status: 400, headers: corsHeaders });
     }
 
-    const id = randomUUID();
-    const finalKeyValue = keyValue || 'pk_' + randomUUID().replace(/-/g, '') + randomUUID().replace(/-/g, '');
+    const id = crypto.randomUUID();
+    const finalKeyValue = keyValue || 'pk_' + crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 
     await db.execute({
-      sql: 'INSERT INTO api_keys (id, key_value, user_id, name, allowed_origins) VALUES (?, ?, ?, ?, ?)',
-      args: [id, finalKeyValue, userId, name, '*']
+      sql: 'INSERT INTO api_keys (id, key_value, user_id, name) VALUES (?, ?, ?, ?)',
+      args: [id, finalKeyValue, userId, name]
     });
 
     const keyData = {
