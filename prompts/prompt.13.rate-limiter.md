@@ -1,6 +1,10 @@
-# Prompt 11: API Rate Limiter Implementation
+# Prompt 13: rate limiter
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'rate limiter' feature for my LinkSnap application.
+
+### Context:
 Establish a secure rate-limiting subsystem in `lib/rate-limit.ts` to defend API routes from request flooding.
 
 ## Requirements

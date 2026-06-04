@@ -1,6 +1,10 @@
-# Prompt 03: API Preview Route
+# Prompt 4: api preview route
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'api preview route' feature for my LinkSnap application.
+
+### Context:
 Create the public API preview endpoint in `app/api/preview/route.ts` that acts as the gateway for metadata requests.
 
 ## Requirements

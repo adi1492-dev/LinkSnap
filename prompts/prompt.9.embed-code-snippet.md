@@ -1,6 +1,10 @@
-# Prompt 07: Embed Code Snippet Generator
+# Prompt 9: embed code snippet
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'embed code snippet' feature for my LinkSnap application.
+
+### Context:
 Build an embed code generation widget in the dashboard to let users copy HTML snippets for external websites.
 
 ## Requirements

@@ -1,6 +1,10 @@
-# Prompt 16: Usage Logger and Polling Stream
+# Prompt 18: usage logs polling
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'usage logs polling' feature for my LinkSnap application.
+
+### Context:
 Implement log streaming in `app/api/logs/route.ts` and set up active client-side dashboard polling to track request logs.
 
 ## Requirements

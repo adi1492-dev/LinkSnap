@@ -24,7 +24,7 @@ export async function initializeDatabase() {
     
     if (rows.length === 0) {
       console.log('Auto-migrating Turso database tables...');
-      await db.executeMultiple(`
+      await db.execute(`
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
@@ -33,6 +33,8 @@ export async function initializeDatabase() {
             quota_limit INTEGER DEFAULT 1000,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+      `);
+      await db.execute(`
         CREATE TABLE IF NOT EXISTS api_keys (
             id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
@@ -43,6 +45,8 @@ export async function initializeDatabase() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+      `);
+      await db.execute(`
         CREATE TABLE IF NOT EXISTS api_usage_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             key_id TEXT NOT NULL,
@@ -56,7 +60,7 @@ export async function initializeDatabase() {
       console.log('Tables created successfully!');
     } else {
       // In case api_keys table wasn't created yet or we need to ensure other tables exist
-      await db.executeMultiple(`
+      await db.execute(`
         CREATE TABLE IF NOT EXISTS api_keys (
             id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
@@ -67,6 +71,8 @@ export async function initializeDatabase() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+      `);
+      await db.execute(`
         CREATE TABLE IF NOT EXISTS api_usage_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             key_id TEXT NOT NULL,

@@ -1,6 +1,10 @@
-# Prompt 13: Turso DB Client and Auto-Migrations
+# Prompt 15: turso db setup
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'turso db setup' feature for my LinkSnap application.
+
+### Context:
 Establish database connectivity in `lib/db.ts` utilizing `@libsql/client` and create an automated setup script to provision tables.
 
 ## Requirements

@@ -1,6 +1,10 @@
-# Prompt 05: Dashboard Base Layout and Navigation
+# Prompt 7: dashboard base ui
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'dashboard base ui' feature for my LinkSnap application.
+
+### Context:
 Design the user interface structural layout for the dashboard in `app/dashboard/page.tsx`.
 
 ## Requirements

@@ -1,6 +1,10 @@
-# Prompt 01: Initial Workspace and Styling Setup
+# Prompt 1: initial setup
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'initial setup' feature for my LinkSnap application.
+
+### Context:
 Initialize the LinkSnap project with a clean Next.js 15 (App Router) template and establish a premium dark theme styling system.
 
 ## Requirements

@@ -1,94 +1,67 @@
-# LinkSnap - Open Graph Preview API & Developer Dashboard
+# 🚀 LinkSnap - Enterprise Open Graph API & Developer Hub
 
-LinkSnap is a high-performance, edge-ready full-stack Open Graph metadata extraction API and Developer Dashboard built using Next.js 15 and backed by a Turso SQLite database. It extracts titles, descriptions, high-resolution images, and favicons from any URL in milliseconds, falling back to a headless browser scraping service when necessary.
-
----
-
-## Key Features
-
-- **Rich Preview Cards**: Visualizes Open Graph and Twitter Card metadata instantly with responsive hover effects.
-- **Preview History**: Fully searchable browser history with custom collections (folders) and tagging mechanisms.
-- **Unified Public API**: A public `GET /api/preview` endpoint that returns structured metadata JSON.
-- **HTML Embed Snippet Generator**: Instantly generate iframe embed code to display cards on any site.
-- **Batch Processing & CSV Ingestion**: Scrape dozens of links concurrently by pasting lists or importing a `.csv` file.
-- **Developer API Key Portal**: Complete user authentication, secure key creation, key revocation, and request logging.
-- **Interactive API Playground**: Simulate preview API requests with your custom API keys and inspect real-time log traces.
-- **Browser Bookmarklet**: Drag-and-drop JavaScript button to overlay preview link cards from any browser tab.
+Welcome to **LinkSnap**, a high-performance, edge-ready Open Graph metadata extraction service. Built for scale, LinkSnap provides developers with instant, structured JSON representations of any URL, powering rich link previews for chat applications, social networks, and forums.
 
 ---
 
-## Tech Stack & Architecture
+## 🌟 Key Features
 
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Vanilla CSS (Premium Dark Theme with Glassmorphism)
-- **Database**: Turso Edge SQLite (via `@libsql/client`)
-- **State Management**: Zustand (local state synced with database endpoints)
-- **HTML Scraper**: Cheerio (fast server-side HTML tree parsing)
-- **Headless Fallback**: Microlink API (headless browser scraping for client-side JS-rendered pages)
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed descriptions of the metadata pipeline, fallbacks, database migrations, and rate limiting details.
+- **Blazing Fast Parsing**: Sub-200ms extractions powered by server-side Cheerio DOM querying.
+- **Headless Fallback Engine**: Seamlessly extracts metadata from React, Vue, and Angular SPA applications using a headless browser fallback (Microlink API).
+- **Edge Caching**: Fully optimized for Vercel Edge Networks with intelligent cache TTL handling.
+- **Developer API Dashboard**: Complete portal for generating API keys, tracking usage metrics, and viewing real-time request logs.
+- **Public & Authenticated Previews**: Allows public landing page previews while enforcing robust rate limits and quota systems for programmatic API access.
+- **Interactive Playground**: Test URLs directly in the dashboard and instantly copy iframe embed snippets for your own site.
 
 ---
 
-## Local Development & Setup
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React, Lucide Icons
+- **Styling**: Vanilla CSS (Tailwind patterns with custom Glassmorphism and animations)
+- **Backend**: Next.js Serverless Route Handlers
+- **Database**: Turso Edge SQLite with `@libsql/client`
+- **State Management**: Zustand (Client-side persistence)
+- **Parsing**: Cheerio
+
+---
+
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- **Node.js**: version 18 or higher
-- **Turso DB Account** (Optional: falls back to local `local.db` file-based SQLite out-of-the-box)
+- Node.js 18+
+- Optional: Turso Database Account (falls back to `local.db`)
 
-### Step 1: Install Dependencies
+### Installation
+
 ```bash
+# 1. Clone the repository and install dependencies
 npm install
-```
 
-### Step 2: Configure Environment Variables (Optional for Turso)
-Create a `.env` or `.env.local` file in the root directory:
-```env
-TURSO_DATABASE_URL=libsql://your-db-name-username.turso.io
-TURSO_AUTH_TOKEN=your-turso-auth-token
-```
-*Note: If these variables are not provided, LinkSnap will automatically initialize and seed a local SQLite database file `local.db` in your workspace.*
+# 2. Set up environment variables (Optional)
+# If omitted, LinkSnap automatically provisions a local SQLite file.
+echo "TURSO_DATABASE_URL=libsql://..." > .env.local
+echo "TURSO_AUTH_TOKEN=..." >> .env.local
 
-### Step 3: Run the Development Server
-```bash
+# 3. Start the development server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the homepage, and [http://localhost:3000/dashboard](http://localhost:3000/dashboard) to log in or register.
+
+Navigate to [http://localhost:3000](http://localhost:3000) to access the landing page and dashboard.
 
 ---
 
-## Default Seeded Credentials
-To facilitate immediate testing:
-- **Test Developer Account**:
-  - **Email**: `user@example.com`
-  - **Password**: `password`
-- **Seeded Active API Key**:
-  - `pk_e5a822e0dcac4d08a8e7a56698f7ccbbb50cc4e345ba4470809997f536401f08`
+## 🔒 Default Test Credentials
+
+For rapid testing, the system seeds a default development account upon initialization:
+- **Email**: `user@example.com`
+- **Password**: `password`
+- **Pre-configured API Key**: `pk_e5a822e0dcac4d08a8e7a56698f7ccbbb50cc4e345ba4470809997f536401f08`
 
 ---
 
-## Project Structure
-```text
-├── app/
-│   ├── api/
-│   │   ├── auth/           # Login and registration endpoints
-│   │   ├── keys/           # API Keys CRUD endpoints
-│   │   ├── logs/           # Request logs query endpoints
-│   │   └── preview/        # Public metadata scraper route
-│   ├── dashboard/          # Developer dashboard portal UI
-│   ├── embed/              # Iframe rendering page
-│   └── layout.tsx & page.tsx
-├── components/             # Reusable UI components
-├── lib/
-│   ├── db.ts               # Turso database connection & auto-migrations
-│   ├── og-parser.ts        # Cheerio & Microlink scraping pipeline
-│   ├── rate-limit.ts       # Sliding window rate limiting
-│   └── store.ts            # Zustand client state store
-├── prompts/                # Step-by-step developer prompts & AI declaration
-└── ARCHITECTURE.md         # Detailed system design
-```
+## 🏗 Architecture & Collaboration
 
----
+LinkSnap's architecture prioritizes speed, security, and developer experience. Please refer to our [ARCHITECTURE.md](ARCHITECTURE.md) for an in-depth dive into our system design, caching layers, and database schemas.
 
-## AI Collaboration Declaration
-All developer prompts, system iterations, and architectural pivots have been saved in the `prompts/` directory. Refer to [prompts/ai-declaration.md](prompts/ai-declaration.md) for more details on the human-AI collaborative pair programming process.
+This project was developed iteratively in collaboration with an advanced AI assistant. You can view the complete history of prompts that shaped this platform in the [`prompts/`](prompts/) directory, and read our [AI Declaration](prompts/ai-declaration.md).

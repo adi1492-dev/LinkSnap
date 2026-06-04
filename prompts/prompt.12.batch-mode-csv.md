@@ -1,6 +1,10 @@
-# Prompt 10: Batch URL and CSV Processor
+# Prompt 12: batch mode csv
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'batch mode csv' feature for my LinkSnap application.
+
+### Context:
 Implement batch processing and file import features to scrape and render multiple links simultaneously.
 
 ## Requirements

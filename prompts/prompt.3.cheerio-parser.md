@@ -1,6 +1,10 @@
-# Prompt 02: Cheerio Parser Implementation
+# Prompt 3: cheerio parser
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'cheerio parser' feature for my LinkSnap application.
+
+### Context:
 Build a fast server-side HTML parser in `lib/og-parser.ts` to extract Open Graph and Twitter Card metadata from any webpage.
 
 ## Requirements

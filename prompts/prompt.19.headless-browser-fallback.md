@@ -1,6 +1,10 @@
-# Prompt 17: Headless Browser Scraper Fallback
+# Prompt 19: headless browser fallback
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'headless browser fallback' feature for my LinkSnap application.
+
+### Context:
 Update the server-side extraction pipeline in `lib/og-parser.ts` to support scraping metadata from client-side JavaScript-rendered pages using a headless browser service.
 
 ## Requirements

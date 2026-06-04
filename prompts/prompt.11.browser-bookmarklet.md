@@ -1,6 +1,10 @@
-# Prompt 09: Browser Bookmarklet Implementation
+# Prompt 11: browser bookmarklet
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'browser bookmarklet' feature for my LinkSnap application.
+
+### Context:
 Provide an installation panel in the dashboard for a drag-and-drop browser bookmarklet to let users preview links from any site.
 
 ## Requirements

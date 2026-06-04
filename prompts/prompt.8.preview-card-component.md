@@ -1,6 +1,10 @@
-# Prompt 06: Preview Card Component
+# Prompt 8: preview card component
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'preview card component' feature for my LinkSnap application.
+
+### Context:
 Create the `PreviewCard` UI component in `components/preview-card.tsx` to beautifully render links.
 
 ## Requirements

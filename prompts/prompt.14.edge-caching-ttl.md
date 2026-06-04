@@ -1,6 +1,10 @@
-# Prompt 12: CDN Edge Caching and Headers
+# Prompt 14: edge caching ttl
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'edge caching ttl' feature for my LinkSnap application.
+
+### Context:
 Configure response headers in the preview API route to enforce CDN caching, keeping request latencies below 2 seconds.
 
 ## Requirements

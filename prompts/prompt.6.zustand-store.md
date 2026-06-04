@@ -1,6 +1,10 @@
-# Prompt 04: Zustand State Store
+# Prompt 6: zustand store
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'zustand store' feature for my LinkSnap application.
+
+### Context:
 Establish a persistent client-side state store using Zustand in `lib/store.ts` to manage link history, tags, and collections offline.
 
 ## Requirements

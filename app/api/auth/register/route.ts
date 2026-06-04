@@ -40,13 +40,16 @@ export async function POST(request: Request) {
     const defaultKeyValue = 'pk_' + crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 
     // Insert user and their default API key
-    await db.executeMultiple(`
-      INSERT INTO users (id, name, email, password, quota_limit) 
-      VALUES ('${userId}', '${name.replace(/'/g, "''")}', '${trimmedEmail}', '${password.replace(/'/g, "''")}', 1000);
-      
-      INSERT INTO api_keys (id, key_value, user_id, name, status) 
-      VALUES ('${defaultKeyId}', '${defaultKeyValue}', '${userId}', 'Default Development Key', 'active');
-    `);
+    await db.batch([
+      {
+        sql: 'INSERT INTO users (id, name, email, password, quota_limit) VALUES (?, ?, ?, ?, ?)',
+        args: [userId, name.trim(), trimmedEmail, password, 1000]
+      },
+      {
+        sql: 'INSERT INTO api_keys (id, key_value, user_id, name, status) VALUES (?, ?, ?, ?, ?)',
+        args: [defaultKeyId, defaultKeyValue, userId, 'Default Development Key', 'active']
+      }
+    ]);
 
     // Fetch the inserted key back to return
     const keyData = {

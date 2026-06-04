@@ -1,6 +1,10 @@
-# Prompt 15: Auth Registration and Login API Routes
+# Prompt 17: auth register login
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'auth register login' feature for my LinkSnap application.
+
+### Context:
 Implement backend API handlers for developer authentication under `app/api/auth/register` and `app/api/auth/login`.
 
 ## Requirements

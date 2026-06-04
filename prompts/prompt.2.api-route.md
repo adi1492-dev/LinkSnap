@@ -1,4 +1,8 @@
-# Prompt 2: API Route and Rate Limiting
+# Prompt 2: api route
+
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'api route' feature for my LinkSnap application.
 
 **User Prompt:**
 Now, create a public API endpoint at `/api/preview` that takes a `url` parameter and returns the structured OG metadata as JSON. The API needs to respond in under 2 seconds for cached URLs, so use Next.js fetch caching (`revalidate: 3600`). Also, implement a simple rate limiter that limits requests to 60 per minute per API key. For now, just use an in-memory Map to store the rate limit counts. Return standard rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`).

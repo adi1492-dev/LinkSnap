@@ -59,33 +59,30 @@ export async function GET(request: Request) {
       });
     }
 
-    // Strict API Key Enforcement
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Unauthorized: Missing API key. Please provide an api_key parameter or Authorization Bearer token.' }, { status: 401, headers: corsHeaders });
-    }
+    // Database validation logic (Turso or Local SQLite) if apiKey is provided
+    if (apiKey) {
+      try {
+        await initializeDatabase();
+        
+        const { rows } = await db.execute({
+          sql: 'SELECT id, status FROM api_keys WHERE key_value = ?',
+          args: [apiKey]
+        });
 
-    // Database validation logic (Turso or Local SQLite)
-    try {
-      await initializeDatabase();
-      
-      const { rows } = await db.execute({
-        sql: 'SELECT id, status FROM api_keys WHERE key_value = ?',
-        args: [apiKey]
-      });
+        if (rows.length === 0 || rows[0].status !== 'active') {
+          return NextResponse.json({ error: 'Invalid or revoked API key' }, { status: 401, headers: corsHeaders });
+        }
 
-      if (rows.length === 0 || rows[0].status !== 'active') {
-        return NextResponse.json({ error: 'Invalid or revoked API key' }, { status: 401 });
+        // Asynchronously log the usage to Turso
+        db.execute({
+          sql: 'INSERT INTO api_usage_logs (key_id, target_url, status_code, duration_ms) VALUES (?, ?, ?, ?)',
+          args: [rows[0].id as string, url, 200, 0] // Duration can be tracked wrapping the fetchOGMetadata call
+        }).catch(e => console.error('Failed to log API usage to Turso:', e));
+
+      } catch (dbError) {
+        console.error('Turso DB Error:', dbError);
+        return NextResponse.json({ error: 'Internal Server Error: Database unavailable.' }, { status: 500, headers: corsHeaders });
       }
-
-      // Asynchronously log the usage to Turso
-      db.execute({
-        sql: 'INSERT INTO api_usage_logs (key_id, target_url, status_code, duration_ms) VALUES (?, ?, ?, ?)',
-        args: [rows[0].id as string, url, 200, 0] // Duration can be tracked wrapping the fetchOGMetadata call
-      }).catch(e => console.error('Failed to log API usage to Turso:', e));
-
-    } catch (dbError) {
-      console.error('Turso DB Error:', dbError);
-      return NextResponse.json({ error: 'Internal Server Error: Database unavailable.' }, { status: 500, headers: corsHeaders });
     }
 
     const metadata = await fetchOGMetadata(url);

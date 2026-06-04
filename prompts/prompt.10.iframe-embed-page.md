@@ -1,6 +1,10 @@
-# Prompt 08: Embed Page Implementation
+# Prompt 10: iframe embed page
 
-## Objective
+**Act as an expert Next.js and React Developer.**
+
+Please help me build the 'iframe embed page' feature for my LinkSnap application.
+
+### Context:
 Implement a lightweight rendering page under the `/embed` path in `app/embed/page.tsx` that serves as the iframe source.
 
 ## Requirements
