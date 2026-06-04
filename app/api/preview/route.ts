@@ -5,8 +5,10 @@ import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
+const allowedOrigin = process.env.FRONTEND_URL || '*';
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': allowedOrigin,
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };

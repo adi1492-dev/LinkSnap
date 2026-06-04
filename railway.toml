@@ -10,5 +10,6 @@ restartPolicyType = "ON_FAILURE"
 [env]
 NODE_ENV = "production"
 # Remember to add these in your Railway dashboard:
+# FRONTEND_URL = "https://your-vercel-domain.vercel.app"
 # TURSO_DATABASE_URL = "libsql://..."
 # TURSO_AUTH_TOKEN = "..."

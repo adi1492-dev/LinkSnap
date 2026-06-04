@@ -2,6 +2,17 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { randomUUID } from 'crypto';
 
+const allowedOrigin = process.env.FRONTEND_URL || '*';
+const corsHeaders = {
+  'Access-Control-Allow-Origin': allowedOrigin,
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,9 +27,9 @@ export async function GET(request: Request) {
       args: [userId]
     });
 
-    return NextResponse.json({ data: rows });
+    return NextResponse.json({ data: rows }, { headers: corsHeaders });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
 
@@ -41,8 +52,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       data: { id, key_value: keyValue, user_id: userId, name, allowed_origins: '*' } 
-    });
+    }, { headers: corsHeaders });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
