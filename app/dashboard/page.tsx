@@ -172,13 +172,13 @@ function HomeTab() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const urlParam = params.get('url');
-      if (urlParam && urlParam !== url) {
-        // Just directly update if needed, but safe state assignment
-        const t = setTimeout(() => setUrl(urlParam), 0);
-        return () => clearTimeout(t);
+      if (urlParam) {
+        setUrl(urlParam);
+        // Optionally, we could clean up the URL to remove the parameter without reloading, 
+        // so it doesn't persist on refresh, but this is fine.
       }
     }
-  }, [url]);
+  }, []); // Run only once on mount
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
