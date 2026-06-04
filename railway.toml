@@ -1,9 +1,8 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "npm run build"
+builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "npm start"
+# Dockerfile exposes port 3000 and runs node server.js automatically
 healthcheckPath = "/"
 restartPolicyType = "ON_FAILURE"
 
