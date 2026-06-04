@@ -1,7 +1,10 @@
-# Prompt 1: Initial Setup and Architecture
+# Prompt 01: Initial Workspace and Styling Setup
 
-**User Prompt:**
-Create a Next.js 15 application using the App Router and Tailwind CSS for an Open Graph (OG) preview generator. The app should have a clean UI where I can paste a URL and it will fetch the OG metadata (title, description, image, domain, favicon). Use `cheerio` on the server-side to parse the HTML and extract the metadata. Make sure to handle fallbacks: if `og:image` is missing, try `twitter:image`, then the first `<img>` tag. If `og:description` is missing, try `twitter:description`, `<meta name="description">`, or the first `<p>` tag.
+## Objective
+Initialize the LinkSnap project with a clean Next.js 15 (App Router) template and establish a premium dark theme styling system.
 
-**AI Response:**
-Created the basic Next.js project structure, added `cheerio` for parsing, and implemented the `lib/og-parser.ts` utility to fetch and parse the HTML with appropriate fallback selectors. Also created the initial UI in `app/page.tsx` with a simple input form to test the extraction.
+## Requirements
+- Set up a standard Next.js workspace with `/app`, `/components`, `/lib`, and `/assets` directories.
+- Configure Tailwind CSS or Vanilla CSS variables to support glassmorphism, smooth animations, and high contrast styling.
+- Create a global layout file that sets up Outfit/Inter typography, responsive viewport parameters, and the base layout structure.
+- Define a base landing page structure that introduces the Link Preview service.

@@ -131,19 +131,55 @@ export async function fetchOGMetadata(url: string): Promise<OGMetadata> {
     const keywordsRaw = $('meta[name="keywords"]').attr('content') || '';
     const keywords = keywordsRaw ? keywordsRaw.split(',').map(k => k.trim()).filter(Boolean) : null;
 
+    // If title or description is missing (indicates JS-rendered or empty client page),
+    // fall back to a headless browser scraping service (Microlink)
+    let finalTitle = title ? title.trim() : null;
+    let finalDescription = description ? description.trim() : null;
+    let finalImage = image;
+    let finalFavicon = favicon;
+    let finalDomain = domain;
+    let finalSiteName = siteName;
+    let finalAuthor = articleAuthor;
+    let finalPublishedTime = articlePublishedTime;
+
+    if (!finalTitle || !finalDescription) {
+      try {
+        const headlessRes = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`, {
+          headers: { 'Accept': 'application/json' },
+          next: { revalidate: 3600 }
+        });
+        if (headlessRes.ok) {
+          const json = await headlessRes.json();
+          if (json.status === 'success' && json.data) {
+            const mData = json.data;
+            if (!finalTitle) finalTitle = mData.title || null;
+            if (!finalDescription) finalDescription = mData.description || null;
+            if (!finalImage) finalImage = mData.image?.url || mData.logo?.url || null;
+            if (!finalFavicon) finalFavicon = mData.logo?.url || null;
+            if (!finalDomain) finalDomain = mData.publisher || null;
+            if (!finalSiteName) finalSiteName = mData.publisher || null;
+            if (!finalAuthor) finalAuthor = mData.author || null;
+            if (!finalPublishedTime) finalPublishedTime = mData.date || null;
+          }
+        }
+      } catch (e) {
+        console.error('Headless browser service fallback failed:', e);
+      }
+    }
+
     return {
-      title: title ? title.trim() : null,
-      description: description ? description.trim() : null,
-      image,
+      title: finalTitle,
+      description: finalDescription,
+      image: finalImage,
       url: canonicalUrl,
-      domain,
-      favicon,
+      domain: finalDomain,
+      favicon: finalFavicon,
       type,
-      siteName,
+      siteName: finalSiteName,
       locale,
-      articlePublishedTime,
+      articlePublishedTime: finalPublishedTime,
       articleModifiedTime,
-      articleAuthor,
+      articleAuthor: finalAuthor,
       twitterCard,
       twitterSite,
       twitterCreator,
