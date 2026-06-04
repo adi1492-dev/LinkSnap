@@ -38,6 +38,7 @@ export async function initializeDatabase() {
             user_id TEXT NOT NULL,
             name TEXT NOT NULL,
             key_value TEXT UNIQUE NOT NULL,
+            allowed_origins TEXT DEFAULT '*',
             status TEXT DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -61,6 +62,7 @@ export async function initializeDatabase() {
             user_id TEXT NOT NULL,
             name TEXT NOT NULL,
             key_value TEXT UNIQUE NOT NULL,
+            allowed_origins TEXT DEFAULT '*',
             status TEXT DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -75,6 +77,14 @@ export async function initializeDatabase() {
             FOREIGN KEY (key_id) REFERENCES api_keys(id) ON DELETE CASCADE
         );
       `);
+    }
+
+    // Safely update existing databases if they lack the allowed_origins column
+    try {
+      await db.execute("ALTER TABLE api_keys ADD COLUMN allowed_origins TEXT DEFAULT '*';");
+      console.log('Migrated existing database: added allowed_origins column.');
+    } catch (e) {
+      // Column already exists, ignore error
     }
 
     // Seed default user
