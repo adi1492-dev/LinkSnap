@@ -622,7 +622,7 @@ function ApiDashboardTab() {
   const [playgroundStatusCode, setPlaygroundStatusCode] = useState<number | null>(null);
 
   // Docs tab state
-  const [docsTab, setDocsTab] = useState<'quick' | 'endpoints' | 'schema' | 'snippets' | 'limits' | 'errors'>('quick');
+  const [docsTab, setDocsTab] = useState<'quick' | 'endpoints' | 'schema' | 'snippets' | 'integration' | 'limits' | 'errors'>('quick');
   const [codeLang, setCodeLang] = useState<'curl' | 'js' | 'node' | 'python'>('curl');
   const [copiedCodeCode, setCopiedCodeCode] = useState(false);
 
@@ -1282,6 +1282,12 @@ function ApiDashboardTab() {
               Code Snippets
             </button>
             <button
+              onClick={() => setDocsTab('integration')}
+              className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${docsTab === 'integration' ? 'border-blue-600 text-blue-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+            >
+              Backend Integration
+            </button>
+            <button
               onClick={() => setDocsTab('limits')}
               className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${docsTab === 'limits' ? 'border-blue-600 text-blue-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
             >
@@ -1428,6 +1434,63 @@ function ApiDashboardTab() {
               <div className="bg-gray-950 rounded-2xl border border-gray-900 overflow-hidden shadow-inner pt-4">
                 <div className="p-4 overflow-x-auto text-xs font-mono leading-relaxed text-slate-400 select-all max-h-72">
                   <pre>{getDocCode()}</pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {docsTab === 'integration' && (
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <h4 className="text-base font-bold text-gray-950">Secure API Integration (Best Practices)</h4>
+              <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                <p className="text-sm text-amber-500 font-medium">
+                  ⚠️ <strong>Security Warning:</strong> Never place your API key (<code className="bg-amber-500/20 px-1 py-0.5 rounded">pk_...</code>) directly in frontend React, Vue, or Vanilla JS code. Doing so exposes your secret to the public, allowing malicious actors to steal your usage quota!
+                </p>
+              </div>
+
+              <div className="space-y-6 pt-2">
+                <div className="space-y-2">
+                  <div className="font-semibold text-xs text-blue-500 tracking-wider uppercase">1. Store Key in .env</div>
+                  <p className="text-sm text-slate-400">Save your API key securely on your server environment variables.</p>
+                  <pre className="text-[11px] font-mono bg-gray-950 border border-gray-900 p-3 rounded-lg text-green-400">
+{`# .env
+LINKSNAP_API_KEY=pk_your_secret_key_here`}
+                  </pre>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-semibold text-xs text-blue-500 tracking-wider uppercase">2. Build a Backend Proxy (Next.js Example)</div>
+                  <p className="text-sm text-slate-400">Create a route on your own server that calls LinkSnap. This keeps your key completely hidden.</p>
+                  <pre className="text-[11px] font-mono bg-gray-950 border border-gray-900 p-3 rounded-lg text-slate-300">
+{`// app/api/get-link-preview/route.js
+import { NextResponse } from 'next/server';
+
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const targetUrl = searchParams.get('url');
+
+  // Safely inject your hidden API key here
+  const response = await fetch(\`https://api.linksnap.com/api/preview?url=\${encodeURIComponent(targetUrl)}\`, {
+    headers: { "Authorization": \`Bearer \${process.env.LINKSNAP_API_KEY}\` }
+  });
+
+  const data = await response.json();
+  return NextResponse.json(data);
+}`}
+                  </pre>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-semibold text-xs text-blue-500 tracking-wider uppercase">3. Fetch from your Frontend</div>
+                  <p className="text-sm text-slate-400">Your React component now securely calls your own proxy route without needing an API key.</p>
+                  <pre className="text-[11px] font-mono bg-gray-950 border border-gray-900 p-3 rounded-lg text-slate-300">
+{`// components/PreviewCard.jsx
+async function loadPreview() {
+  const res = await fetch('/api/get-link-preview?url=https://stripe.com');
+  const json = await res.json();
+  console.log(json.data); // Safely render your UI!
+}`}
+                  </pre>
                 </div>
               </div>
             </div>
