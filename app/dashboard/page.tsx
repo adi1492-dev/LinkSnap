@@ -161,6 +161,8 @@ function HomeTab() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const addToHistory = useAppStore(state => state.addToHistory);
+  const apiKeys = useAppStore(state => state.apiKeys);
+  const defaultKey = apiKeys.length > 0 ? apiKeys[0].key : '';
 
   // Initialize from URL param if available
   useEffect(() => {
@@ -209,7 +211,9 @@ function HomeTab() {
           inputUrl = 'https://' + inputUrl;
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`, {
+          headers: defaultKey ? { 'Authorization': `Bearer ${defaultKey}` } : undefined
+        });
         if (!res.ok) {
           throw new Error(`Failed with status: ${res.status}`);
         }
@@ -236,7 +240,9 @@ function HomeTab() {
           if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
             inputUrl = 'https://' + inputUrl;
           }
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`, {
+            headers: defaultKey ? { 'Authorization': `Bearer ${defaultKey}` } : undefined
+          });
           if (res.ok) {
             const json = await res.json();
             if (!json.error) {

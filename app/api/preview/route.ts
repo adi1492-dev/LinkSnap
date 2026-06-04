@@ -59,8 +59,13 @@ export async function GET(request: Request) {
       });
     }
 
+    // Strict API Key Enforcement
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Unauthorized: Missing API key. Please provide an api_key parameter or Authorization Bearer token.' }, { status: 401, headers: corsHeaders });
+    }
+
     // Database validation logic (Turso)
-    if (apiKey && process.env.TURSO_DATABASE_URL) {
+    if (process.env.TURSO_DATABASE_URL) {
       try {
         const { rows } = await db.execute({
           sql: 'SELECT id, status FROM api_keys WHERE key_value = ?',
@@ -79,7 +84,7 @@ export async function GET(request: Request) {
 
       } catch (dbError) {
         console.error('Turso DB Error:', dbError);
-        // Fallback to anonymous handling if DB fails or isn't fully migrated yet
+        return NextResponse.json({ error: 'Internal Server Error: Database unavailable.' }, { status: 500, headers: corsHeaders });
       }
     }
 
