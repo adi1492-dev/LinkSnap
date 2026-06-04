@@ -150,7 +150,7 @@ export const useAppStore = create<AppState>()(
           name: name.trim(),
           email: trimmedEmail,
           createdAt: Date.now(),
-          quotaLimit: 100 // Default free request quota
+          quotaLimit: 1000 // Default free request quota increased per user request
         };
         
         set((state) => ({

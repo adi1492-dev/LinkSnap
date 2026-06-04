@@ -161,8 +161,11 @@ function HomeTab() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const addToHistory = useAppStore(state => state.addToHistory);
+  const incrementUsage = useAppStore(state => state.incrementUsage);
+  const addApiLog = useAppStore(state => state.addApiLog);
   const apiKeys = useAppStore(state => state.apiKeys);
   const defaultKey = apiKeys.length > 0 ? apiKeys[0].key : '';
+  const defaultKeyId = apiKeys.length > 0 ? apiKeys[0].id : '';
 
   // Initialize from URL param if available
   useEffect(() => {
@@ -211,9 +214,25 @@ function HomeTab() {
           inputUrl = 'https://' + inputUrl;
         }
 
+        const startTime = Date.now();
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`, {
           headers: defaultKey ? { 'Authorization': `Bearer ${defaultKey}` } : undefined
         });
+        const duration = Date.now() - startTime;
+        
+        if (defaultKeyId) {
+          incrementUsage(defaultKeyId);
+          addApiLog({
+             userId: apiKeys[0].userId,
+             apiKey: defaultKey,
+             keyName: apiKeys[0].name,
+             url: inputUrl,
+             status: res.status,
+             responseTime: duration,
+             method: 'GET'
+          });
+        }
+        
         if (!res.ok) {
           throw new Error(`Failed with status: ${res.status}`);
         }
@@ -240,9 +259,25 @@ function HomeTab() {
           if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
             inputUrl = 'https://' + inputUrl;
           }
+          const startTime = Date.now();
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/preview?url=${encodeURIComponent(inputUrl)}`, {
             headers: defaultKey ? { 'Authorization': `Bearer ${defaultKey}` } : undefined
           });
+          const duration = Date.now() - startTime;
+
+          if (defaultKeyId) {
+            incrementUsage(defaultKeyId);
+            addApiLog({
+               userId: apiKeys[0].userId,
+               apiKey: defaultKey,
+               keyName: apiKeys[0].name,
+               url: inputUrl,
+               status: res.status,
+               responseTime: duration,
+               method: 'GET'
+            });
+          }
+
           if (res.ok) {
             const json = await res.json();
             if (!json.error) {
