@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchOGMetadata } from '@/lib/og-parser';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { db } from '@/lib/db';
+import { db, initializeDatabase } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,6 +67,8 @@ export async function GET(request: Request) {
     // Database validation logic (Turso)
     if (process.env.TURSO_DATABASE_URL) {
       try {
+        await initializeDatabase();
+        
         const { rows } = await db.execute({
           sql: 'SELECT id, status FROM api_keys WHERE key_value = ?',
           args: [apiKey]

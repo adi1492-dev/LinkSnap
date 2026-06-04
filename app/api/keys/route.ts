@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, initializeDatabase } from '@/lib/db';
 import { randomUUID } from 'crypto';
 
 const allowedOrigin = process.env.FRONTEND_URL || '*';
@@ -15,6 +15,11 @@ export async function OPTIONS() {
 
 export async function GET(request: Request) {
   try {
+    await initializeDatabase();
+    
+    // In a real app, you would authenticate the user here
+    // For now, we'll just fetch all keys (or mock it if DB fails)
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -35,6 +40,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    await initializeDatabase();
+
     const body = await request.json();
     const { userId, name } = body;
 
