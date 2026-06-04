@@ -95,11 +95,11 @@ export default function App() {
               {isMounted ? (
                 <div 
                   dangerouslySetInnerHTML={{
-                    __html: `<a href="javascript:(function(){window.open('${window.location.origin}/dashboard?url='+encodeURIComponent(window.location.href));})();" class="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm hover:bg-slate-950 transition-colors text-slate-50">Preview OG</a>`
+                    __html: `<a href="javascript:(function(){if(document.getElementById('linksnap-preview-iframe'))return;var i=document.createElement('iframe');i.id='linksnap-preview-iframe';i.src='${window.location.origin}/embed?url='+encodeURIComponent(window.location.href);i.style.position='fixed';i.style.top='20px';i.style.right='20px';i.style.width='350px';i.style.height='400px';i.style.border='none';i.style.borderRadius='12px';i.style.boxShadow='0 20px 40px rgba(0,0,0,0.3)';i.style.zIndex='2147483646';document.body.appendChild(i);var c=document.createElement('div');c.innerHTML='✕';c.style.position='fixed';c.style.top='10px';c.style.right='10px';c.style.width='28px';c.style.height='28px';c.style.background='#ef4444';c.style.color='white';c.style.borderRadius='50%';c.style.textAlign='center';c.style.lineHeight='28px';c.style.cursor='pointer';c.style.zIndex='2147483647';c.style.fontFamily='sans-serif';c.style.fontSize='14px';c.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';c.onclick=function(){i.remove();c.remove();};document.body.appendChild(c);})();" class="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm hover:bg-slate-950 transition-colors text-slate-50">Preview OG Overlay</a>`
                   }} 
                 />
               ) : (
-                <a href="#" className="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm text-slate-50">Preview OG</a>
+                <a href="#" className="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm text-slate-50">Preview OG Overlay</a>
               )}
             </div>
           </div>
