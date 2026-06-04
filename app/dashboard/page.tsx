@@ -622,7 +622,7 @@ function ApiDashboardTab() {
   const [playgroundStatusCode, setPlaygroundStatusCode] = useState<number | null>(null);
 
   // Docs tab state
-  const [docsTab, setDocsTab] = useState<'quick' | 'endpoints' | 'snippets' | 'errors'>('quick');
+  const [docsTab, setDocsTab] = useState<'quick' | 'endpoints' | 'schema' | 'snippets' | 'limits' | 'errors'>('quick');
   const [codeLang, setCodeLang] = useState<'curl' | 'js' | 'node' | 'python'>('curl');
   const [copiedCodeCode, setCopiedCodeCode] = useState(false);
 
@@ -1270,10 +1270,22 @@ function ApiDashboardTab() {
               Endpoints & Params
             </button>
             <button
+              onClick={() => setDocsTab('schema')}
+              className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${docsTab === 'schema' ? 'border-blue-600 text-blue-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+            >
+              Response Schema
+            </button>
+            <button
               onClick={() => setDocsTab('snippets')}
               className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${docsTab === 'snippets' ? 'border-blue-600 text-blue-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
             >
               Code Snippets
+            </button>
+            <button
+              onClick={() => setDocsTab('limits')}
+              className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${docsTab === 'limits' ? 'border-blue-600 text-blue-500' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+            >
+              Rate Limits
             </button>
             <button
               onClick={() => setDocsTab('errors')}
@@ -1360,6 +1372,36 @@ function ApiDashboardTab() {
             </div>
           )}
 
+          {docsTab === 'schema' && (
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <h4 className="text-base font-bold text-gray-950">Response Schema</h4>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Successful requests return a 200 OK status code with a JSON payload containing the extracted Open Graph properties.
+              </p>
+              
+              <div className="bg-gray-950 rounded-2xl border border-gray-900 overflow-hidden shadow-inner pt-4">
+                <div className="p-4 overflow-x-auto text-xs font-mono leading-relaxed text-green-400">
+<pre>{`{
+  "data": {
+    "title": "Example Domain",           // The parsed title or og:title
+    "description": "This domain is...",  // The parsed description or og:description
+    "image": "https://...",              // Canonical URL of the primary image/og:image
+    "favicon": "https://...",            // Canonical URL of the site favicon
+    "domain": "example.com",             // The root domain of the requested URL
+    "url": "https://example.com/path",   // The final canonical resolved URL
+    "siteName": "Example",               // og:site_name if available
+    "type": "article"                    // og:type if available (e.g. article, website)
+  },
+  "meta": {
+    "providedUrl": "example.com",        // The URL originally passed in the request
+    "cached": false                      // Whether the response was served from cache
+  }
+}`}</pre>
+                </div>
+              </div>
+            </div>
+          )}
+
           {docsTab === 'snippets' && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="flex justify-between items-center bg-slate-950 p-2 border border-slate-800 rounded-xl">
@@ -1386,6 +1428,40 @@ function ApiDashboardTab() {
               <div className="bg-gray-950 rounded-2xl border border-gray-900 overflow-hidden shadow-inner pt-4">
                 <div className="p-4 overflow-x-auto text-xs font-mono leading-relaxed text-slate-400 select-all max-h-72">
                   <pre>{getDocCode()}</pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {docsTab === 'limits' && (
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <h4 className="text-base font-bold text-gray-950">Rate Limits & Quotas</h4>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                To guarantee high availability and stability, the API enforces a sliding-window rate limit.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/50 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-blue-500" />
+                    <h5 className="font-bold text-sm text-slate-50">Burst Limit</h5>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    <strong className="text-white">60 requests per minute</strong> per API Key (or IP address if unauthenticated). Exceeding this limit returns a <code className="bg-slate-800 px-1 py-0.5 rounded text-[10px]">429 Too Many Requests</code>.
+                  </p>
+                </div>
+                
+                <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/50 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-purple-500" />
+                    <h5 className="font-bold text-sm text-slate-50">Headers</h5>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    The API returns standard rate limit headers indicating your current threshold state:
+                    <br/><code className="text-slate-300 block mt-1">X-RateLimit-Limit: 60</code>
+                    <code className="text-slate-300 block">X-RateLimit-Remaining: 59</code>
+                    <code className="text-slate-300 block">X-RateLimit-Reset: 172...</code>
+                  </p>
                 </div>
               </div>
             </div>
