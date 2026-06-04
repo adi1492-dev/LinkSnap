@@ -92,12 +92,15 @@ export default function App() {
               <p className="text-xs text-slate-400 mb-3 leading-relaxed">
                 Drag this button to your bookmarks bar to quickly preview any page you are on.
               </p>
-              <a 
-                href={isMounted ? "javascript:(function(){window.open('" + window.location.origin + "/dashboard?url='+encodeURIComponent(window.location.href));})();" : "#"}
-                className="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm hover:bg-slate-950 transition-colors"
-              >
-                Preview OG
-              </a>
+              {isMounted ? (
+                <div 
+                  dangerouslySetInnerHTML={{
+                    __html: `<a href="javascript:(function(){window.open('${window.location.origin}/dashboard?url='+encodeURIComponent(window.location.href));})();" class="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm hover:bg-slate-950 transition-colors text-slate-50">Preview OG</a>`
+                  }} 
+                />
+              ) : (
+                <a href="#" className="mt-2 block w-full py-2 px-3 bg-slate-900 border border-slate-700 rounded-md text-xs font-medium text-center shadow-sm text-slate-50">Preview OG</a>
+              )}
             </div>
           </div>
         </nav>
