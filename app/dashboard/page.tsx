@@ -174,6 +174,25 @@ function HomeTab() {
     }
   }, [url]);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result;
+      if (typeof text === 'string') {
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        setBatchUrls(prev => {
+          const current = prev.trim();
+          return current ? current + '\n' + lines.join('\n') : lines.join('\n');
+        });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -292,7 +311,12 @@ function HomeTab() {
               className="block w-full p-4 pb-16 text-base border-slate-700 rounded-xl focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all outline-none border focus:ring-2 min-h-[150px]"
               required
             />
-            <div className="absolute bottom-2 right-2">
+            <div className="absolute bottom-2 right-2 flex items-center gap-2">
+              <label className="cursor-pointer flex items-center justify-center py-2 px-4 bg-slate-800 border border-slate-700 text-slate-300 font-medium rounded-lg hover:bg-slate-700 transition-colors text-sm">
+                <Upload className="w-4 h-4 mr-2" />
+                Import CSV
+                <input type="file" accept=".csv,.txt" className="hidden" onChange={handleFileUpload} />
+              </label>
               <button
                 type="submit"
                 disabled={loading}
