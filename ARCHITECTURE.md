@@ -5,10 +5,12 @@ This project provides a robust, fast Open Graph (OG) metadata extraction API and
 
 ## Tech Stack
 - **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS v4 (Dark Theme)
 - **State Management**: Zustand (with localStorage persistence)
-- **HTML Parsing**: Cheerio (Server-side)
-- **Deployment**: Node.js standard runtime or Serverless environment.
+- **HTML Parsing**: Cheerio (Server-side extraction)
+- **Deployment Topology**: Split Architecture
+  - **Frontend**: Vercel (Hosting UI and Dashboard components)
+  - **Backend API**: Railway (Hosting `/api/preview` endpoint for compute-heavy node extraction)
 
 ## Execution Flow & Caching Strategy
 1. **API Endpoint (`/api/preview`)**
@@ -32,8 +34,10 @@ This project provides a robust, fast Open Graph (OG) metadata extraction API and
 ## Embed Snippet Generation
 The HTML embed snippet delegates to an iFrame-based rendering layer via `/embed/page.tsx` pointing to raw OG metadata fetching, wrapping it efficiently in a self-enclosed container preventing DOM conflicts with the host webpage.
 
-## API Key Authentication
+## API Key Authentication & CORS
 API keys are handled via a Dashboard (simulating DB insertion locally mapping client capabilities to secure server contexts). Mock backend endpoints observe the keys via LocalStorage synchronizations.
+
+To support the split-deployment model, the backend API (`/api/preview`) exposes a generic `OPTIONS` handler and responds with explicit `Access-Control-Allow-Origin: *` to allow requests originating from the Vercel frontend. The frontend configures the target backend domain via the `NEXT_PUBLIC_API_URL` environment variable.
 
 ## Conclusion
 The architecture is monolithic serverless, combining fast runtime extraction via Cheerio with a robust client-side visualization layer, suitable as an MVP for rich-link preview systems.

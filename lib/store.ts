@@ -48,6 +48,7 @@ export interface ApiKey {
   createdAt: number;
   requestsCount: number;
   userId: string;
+  allowedOrigins: string[];
 }
 
 export interface ApiLog {
@@ -199,7 +200,8 @@ export const useAppStore = create<AppState>()(
           name: name.trim() || 'Development Key',
           createdAt: Date.now(),
           requestsCount: 0,
-          userId: currentUserId
+          userId: currentUserId,
+          allowedOrigins: ['*']
         };
         
         return {

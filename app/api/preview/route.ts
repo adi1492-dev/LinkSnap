@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import { fetchOGMetadata } from '@/lib/og-parser';
 import { checkRateLimit } from '@/lib/rate-limit';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -61,7 +71,7 @@ export async function GET(request: Request) {
         'X-RateLimit-Limit': '60',
         'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
         'X-RateLimit-Reset': Math.ceil(rateLimitResult.resetAt / 1000).toString(),
-        'Access-Control-Allow-Origin': '*', // Allow CORS for embed
+        ...corsHeaders
       }
     });
 
@@ -70,6 +80,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       error: 'Failed to extract metadata', 
       details: error.message 
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: corsHeaders 
+    });
   }
 }
