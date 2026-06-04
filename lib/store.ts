@@ -8,10 +8,6 @@ function generateId() {
   return Math.random().toString(36).substring(2, 15);
 }
 
-function generateApiKey() {
-  return 'pk_' + generateId().replace(/-/g, '') + generateId().replace(/-/g, '');
-}
-
 export interface PreviewData {
   title: string | null;
   description: string | null;
@@ -74,27 +70,29 @@ export interface User {
 interface AppState {
   history: HistoryItem[];
   apiKeys: ApiKey[];
-  users: User[];
   currentUser: User | null;
-  activeUserPasswordMap: Record<string, string>; // Local safe password persistence simulation
   apiLogs: ApiLog[];
   
-  // Existing features
+  // History features (remains in localStorage)
   addToHistory: (url: string, data: PreviewData) => void;
   removeFromHistory: (id: string) => void;
   updateHistoryItem: (id: string, collection: string | null, tags: string[]) => void;
   
-  // Auth Features
-  registerUser: (name: string, email: string, checkPassword: string) => { success: boolean; error?: string };
-  loginUser: (email: string, checkPassword: string) => { success: boolean; error?: string };
+  // Auth Features (database backed)
+  registerUser: (name: string, email: string, checkPassword: string) => Promise<{ success: boolean; error?: string }>;
+  loginUser: (email: string, checkPassword: string) => Promise<{ success: boolean; error?: string }>;
   logoutUser: () => void;
   
-  // API Management Features
-  createApiKey: (name: string) => void;
-  deleteApiKey: (id: string) => void;
+  // API Management Features (database backed)
+  createApiKey: (name: string) => Promise<void>;
+  deleteApiKey: (id: string) => Promise<void>;
   incrementUsage: (keyId: string) => void;
   addApiLog: (log: Omit<ApiLog, 'id' | 'timestamp'>) => void;
   clearLogs: () => void;
+  
+  // Database synchronization features
+  fetchKeys: (userId: string) => Promise<void>;
+  fetchLogs: (userId: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()(
@@ -102,9 +100,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       history: [],
       apiKeys: [],
-      users: [],
       currentUser: null,
-      activeUserPasswordMap: {},
       apiLogs: [],
       
       addToHistory: (url, data) => set((state) => {
@@ -131,109 +127,153 @@ export const useAppStore = create<AppState>()(
         history: state.history.map(h => h.id === id ? { ...h, collection, tags } : h)
       })),
 
-      // Register User
-      registerUser: (name, email, checkPassword) => {
-        const state = get();
-        const trimmedEmail = email.trim().toLowerCase();
-        
-        if (!name.trim() || !trimmedEmail || !checkPassword) {
-          return { success: false, error: 'All fields are required.' };
+      // Register User via DB
+      registerUser: async (name, email, password) => {
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+          });
+
+          const json = await res.json();
+          if (!res.ok || json.error) {
+            return { success: false, error: json.error || 'Registration failed.' };
+          }
+
+          set({
+            currentUser: json.data.user,
+            apiKeys: [json.data.defaultKey]
+          });
+
+          return { success: true };
+        } catch (err: any) {
+          return { success: false, error: err.message || 'Connection error.' };
         }
-        
-        const existingUser = state.users.find(u => u.email === trimmedEmail);
-        if (existingUser) {
-          return { success: false, error: 'User with this email already exists.' };
-        }
-        
-        const newUser: User = {
-          id: generateId(),
-          name: name.trim(),
-          email: trimmedEmail,
-          createdAt: Date.now(),
-          quotaLimit: 1000 // Default free request quota increased per user request
-        };
-        
-        set((state) => ({
-          users: [...state.users, newUser],
-          activeUserPasswordMap: {
-            ...state.activeUserPasswordMap,
-            [trimmedEmail]: checkPassword
-          },
-          currentUser: newUser
-        }));
-        
-        // Auto create a default api key for convenience
-        const userStore = get();
-        userStore.createApiKey('Default Development Key');
-        
-        return { success: true };
       },
 
-      // Login User
-      loginUser: (email, checkPassword) => {
-        const state = get();
-        const trimmedEmail = email.trim().toLowerCase();
-        
-        const user = state.users.find(u => u.email === trimmedEmail);
-        const storedPassword = state.activeUserPasswordMap[trimmedEmail];
-        
-        if (!user || storedPassword !== checkPassword) {
-          return { success: false, error: 'Invalid email or password.' };
+      // Login User via DB
+      loginUser: async (email, password) => {
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const json = await res.json();
+          if (!res.ok || json.error) {
+            return { success: false, error: json.error || 'Authentication failed.' };
+          }
+
+          set({
+            currentUser: json.data.user,
+            apiKeys: json.data.keys
+          });
+
+          // Fetch logs immediately on login
+          get().fetchLogs(json.data.user.id);
+
+          return { success: true };
+        } catch (err: any) {
+          return { success: false, error: err.message || 'Connection error.' };
         }
-        
-        set({ currentUser: user });
-        return { success: true };
       },
 
       // Logout User
       logoutUser: () => {
-        set({ currentUser: null });
+        set({ currentUser: null, apiKeys: [], apiLogs: [] });
       },
 
-      // API Key Management mapped to User ID
-      createApiKey: (name) => set((state) => {
-        const currentUserId = state.currentUser?.id || 'guest';
-        
-        const newKey: ApiKey = {
-          id: generateId(),
-          key: generateApiKey(),
-          name: name.trim() || 'Development Key',
-          createdAt: Date.now(),
-          requestsCount: 0,
-          userId: currentUserId,
-          allowedOrigins: ['*']
-        };
-        
-        return {
-          apiKeys: [...state.apiKeys, newKey]
-        };
-      }),
+      // Fetch Keys from DB
+      fetchKeys: async (userId) => {
+        try {
+          const res = await fetch(`/api/keys?userId=${encodeURIComponent(userId)}`);
+          const json = await res.json();
+          if (res.ok && json.data) {
+            set({ apiKeys: json.data });
+          }
+        } catch (err) {
+          console.error('Failed to fetch keys:', err);
+        }
+      },
 
-      deleteApiKey: (id) => set((state) => ({
-        apiKeys: state.apiKeys.filter(k => k.id !== id)
-      })),
+      // Fetch Logs from DB
+      fetchLogs: async (userId) => {
+        try {
+          const res = await fetch(`/api/logs?userId=${encodeURIComponent(userId)}`);
+          const json = await res.json();
+          if (res.ok && json.data) {
+            set({ apiLogs: json.data });
+          }
+        } catch (err) {
+          console.error('Failed to fetch logs:', err);
+        }
+      },
 
+      // API Key Management mapped to DB
+      createApiKey: async (name) => {
+        const currentUserId = get().currentUser?.id;
+        if (!currentUserId) return;
+
+        try {
+          const res = await fetch('/api/keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId, name })
+          });
+          const json = await res.json();
+          if (res.ok && json.data) {
+            set((state) => ({
+              apiKeys: [...state.apiKeys, json.data]
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to create api key:', err);
+        }
+      },
+
+      deleteApiKey: async (id) => {
+        try {
+          const res = await fetch(`/api/keys?keyId=${encodeURIComponent(id)}`, {
+            method: 'DELETE'
+          });
+          if (res.ok) {
+            set((state) => ({
+              apiKeys: state.apiKeys.filter(k => k.id !== id)
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to delete api key:', err);
+        }
+      },
+
+      // Increment local count synchronously for immediate visual feedback, then we re-fetch from DB
       incrementUsage: (keyId) => set((state) => ({
         apiKeys: state.apiKeys.map(k => k.id === keyId ? { ...k, requestsCount: k.requestsCount + 1 } : k)
       })),
 
+      // Append log locally for instant UI streaming, backend logging happens in /api/preview
       addApiLog: (log) => set((state) => {
         const newLog: ApiLog = {
           ...log,
           id: generateId(),
           timestamp: Date.now()
         };
-        // Keep last 150 logs to avoid bloating localstorage
         const currentLogs = [newLog, ...state.apiLogs].slice(0, 150);
         return { apiLogs: currentLogs };
       }),
 
-      clearLogs: () => set((state) => ({
-        apiLogs: state.apiLogs.filter(l => l.userId !== (state.currentUser?.id || 'guest'))
-      }))
+      clearLogs: () => set({ apiLogs: [] })
     }),
     {
       name: 'link-preview-storage-v2',
+      partialize: (state) => ({
+        history: state.history,
+        currentUser: state.currentUser,
+        apiKeys: state.apiKeys,
+        apiLogs: state.apiLogs,
+      })
     }
   )
 );

@@ -595,6 +595,8 @@ function ApiDashboardTab() {
   const apiLogs = useAppStore(state => state.apiLogs);
   const addApiLog = useAppStore(state => state.addApiLog);
   const clearLogs = useAppStore(state => state.clearLogs);
+  const fetchKeys = useAppStore(state => state.fetchKeys);
+  const fetchLogs = useAppStore(state => state.fetchLogs);
 
   // Auth States
   const [isRegistering, setIsRegistering] = useState(false);
@@ -632,6 +634,21 @@ function ApiDashboardTab() {
     return () => clearTimeout(timeout);
   }, []);
 
+  // Sync keys and logs periodically from Turso database
+  useEffect(() => {
+    if (currentUser) {
+      fetchKeys(currentUser.id);
+      fetchLogs(currentUser.id);
+
+      const interval = setInterval(() => {
+        fetchKeys(currentUser.id);
+        fetchLogs(currentUser.id);
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentUser, fetchKeys, fetchLogs]);
+
   // Filter keys and logs for logged-in user
   const userKeys = useMemo(() => {
     return currentUser ? apiKeys.filter(k => k.userId === currentUser.id) : [];
@@ -653,12 +670,12 @@ function ApiDashboardTab() {
     }
   }, [userKeys, playgroundKeyId]);
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
 
     if (isRegistering) {
-      const res = registerUser(authName, authEmail, authPassword);
+      const res = await registerUser(authName, authEmail, authPassword);
       if (!res.success) {
         setAuthError(res.error || 'Registration failed.');
       } else {
@@ -668,7 +685,7 @@ function ApiDashboardTab() {
         setAuthPassword('');
       }
     } else {
-      const res = loginUser(authEmail, authPassword);
+      const res = await loginUser(authEmail, authPassword);
       if (!res.success) {
         setAuthError(res.error || 'Authentication failed.');
       } else {
@@ -678,10 +695,10 @@ function ApiDashboardTab() {
     }
   };
 
-  const handleCreateKey = (e: React.FormEvent) => {
+  const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newKeyName.trim()) return;
-    createApiKey(newKeyName);
+    await createApiKey(newKeyName);
     setNewKeyName('');
   };
 
