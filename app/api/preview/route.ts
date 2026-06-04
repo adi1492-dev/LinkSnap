@@ -59,6 +59,16 @@ export async function GET(request: Request) {
       });
     }
 
+    // Determine if the request is coming from our own frontend UI
+    const referer = request.headers.get('referer') || '';
+    const origin = request.headers.get('origin') || '';
+    const isInternalUI = referer.includes('/dashboard') || referer.includes(process.env.FRONTEND_URL || 'localhost') || origin.includes(process.env.FRONTEND_URL || 'localhost');
+
+    // Strict API Key Enforcement for external consumers
+    if (!apiKey && !isInternalUI) {
+      return NextResponse.json({ error: 'Unauthorized: Missing API key. Please provide an api_key parameter or Authorization Bearer token.' }, { status: 401, headers: corsHeaders });
+    }
+
     // Database validation logic (Turso or Local SQLite) if apiKey is provided
     if (apiKey) {
       try {
