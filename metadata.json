@@ -1,0 +1,6 @@
+{
+  "name": "Link Preview API",
+  "description": "Generate rich Open Graph preview cards and API endpoints for URLs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
